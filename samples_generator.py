@@ -117,6 +117,9 @@ def create_confusing_context_agent(num_variants: int = 3):
     4. Make the context plausible for both literal and idiomatic interpretations
     5. Maintain natural, grammatically correct English
     6. Vary the types of ambiguity (situational, semantic, pragmatic)
+    7. If the idiom in the original sentence is used figuratively, create a context that makes a literal interpretation plausible.
+    8. If the idiom in the original sentence is used literally, create a context that makes a figurative interpretation plausible.
+    9. Ensure the resulting sentence is clearly understandable to a human reader.
     
     Examples of confusing context techniques:
     - Place idioms in contexts where literal interpretation seems possible
