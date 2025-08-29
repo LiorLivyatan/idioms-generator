@@ -2,4 +2,5 @@ agno
 python-dotenv
 pydantic
 openai
+google-genai
 pandas

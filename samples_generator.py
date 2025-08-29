@@ -15,10 +15,13 @@ import re
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+# from agno.models.openai import OpenAIChat
+from agno.models.google import Gemini
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+
+from system_prompts import SYSTEM_PROMPT_V2
 
 # Load environment variables
 load_dotenv()
@@ -28,14 +31,19 @@ LABEL2ID = {"O": 0, "B-IDIOM": 1, "I-IDIOM": 2}
 LABELS = list(LABEL2ID.keys())
 
 # Model configurations using GitHub Models
-model = OpenAIChat(
-    id="gpt-4o",
-    api_key=os.getenv("GITHUB_TOKEN_MODEL"),
-    base_url=os.getenv("GITHUB_BASE_URL")
-)
+# model = OpenAIChat(
+#     id="gpt-4o",
+#     api_key=os.getenv("GITHUB_TOKEN_MODEL"),
+#     base_url=os.getenv("GITHUB_BASE_URL")
+# )
 
 # To use OpenAI models, use the following configuration and add OPENAI_API_KEY to .env:
 # model = OpenAIChat(id="gpt-4o")
+
+# Gemini 2.5 Pro
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+gemini_model = "gemini-2.5-pro"
+model = Gemini(id=gemini_model, api_key=gemini_api_key)
 
 class ConfusingVariants(BaseModel):
     """Structured output model for confusing context variants"""
@@ -105,40 +113,7 @@ def read_bio_tsv(file_path: str) -> pd.DataFrame:
 def create_confusing_context_agent(num_variants: int = 3):
     """Create an Agno agent for generating confusing context variants"""
     
-    system_prompt = f"""
-    You are an expert linguist specializing in creating ambiguous contexts for idiomatic expressions.
-
-    Your task is to generate exactly {num_variants} variants of a given sentence that create confusing contexts while preserving the idiom.
-
-    Guidelines:
-    1. Keep the original idiom intact and in the same position
-    2. Each variant must BEGIN with the confusing/ambiguous context and then include the original sentence in its original form and order. Do not alter or move the idiom itself.
-    3. Change the surrounding context to create ambiguity about whether the idiom should be interpreted literally or figuratively
-    4. Make the context plausible for both literal and idiomatic interpretations
-    5. Maintain natural, grammatically correct English
-    6. Vary the types of ambiguity (situational, semantic, pragmatic)
-    7. If the idiom in the original sentence is used figuratively, create a context that makes a literal interpretation plausible.
-    8. If the idiom in the original sentence is used literally, create a context that makes a figurative interpretation plausible.
-    9. Ensure the resulting sentence is clearly understandable to a human reader.
-    
-    Examples of confusing context techniques:
-    - Place idioms in contexts where literal interpretation seems possible
-    - Add details that support both literal and figurative readings
-    - Use situations where the idiom could apply to multiple referents
-    - Create scenarios with dual meanings
-    
-    For sentences without idioms (BIO tag is None), create variants that introduce potential idiomatic interpretations of literal phrases.
-
-    <examples>
-        <example>
-            Input sentence (with idiom): "After months of hard work, he finally kicked the bucket."  
-
-            Variant 1: "At the farm, they were talking about slaughtering pigs, and after months of hard work, he finally kicked the bucket."  
-            Variant 2: "During the heated poker game, with an actual rusty bucket sitting by the table, after months of hard work, he finally kicked the bucket."  
-            Variant 3: "The children had been playing a game with pails and cans, but after months of hard work, he finally kicked the bucket."  
-        </example>
-    </examples>
-    """
+    system_prompt = SYSTEM_PROMPT_V2.format(num_variants=num_variants)
     
     agent = Agent(
         model=model,
