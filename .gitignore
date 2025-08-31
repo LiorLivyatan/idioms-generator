@@ -39,12 +39,6 @@ venv.bak/
 *.swo
 *~
 
-# Output files
-variants_output_*.json
-variants_output_*.csv
-variants_output_*.pickle
-temp_random_sentences.tsv
-
 # OS
 .DS_Store
 .DS_Store?

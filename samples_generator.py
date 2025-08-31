@@ -15,7 +15,7 @@ import re
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from agno.agent import Agent
-# from agno.models.openai import OpenAIChat
+from agno.models.openai import OpenAIChat
 from agno.models.google import Gemini
 from datetime import datetime
 from dotenv import load_dotenv
@@ -31,19 +31,19 @@ LABEL2ID = {"O": 0, "B-IDIOM": 1, "I-IDIOM": 2}
 LABELS = list(LABEL2ID.keys())
 
 # Model configurations using GitHub Models
+# model_name = "gpt-4o"
 # model = OpenAIChat(
-#     id="gpt-4o",
+#     id=model_name,
 #     api_key=os.getenv("GITHUB_TOKEN_MODEL"),
 #     base_url=os.getenv("GITHUB_BASE_URL")
 # )
 
 # To use OpenAI models, use the following configuration and add OPENAI_API_KEY to .env:
-# model = OpenAIChat(id="gpt-4o")
+# model = OpenAIChat(id=model_name)
 
 # Gemini 2.5 Pro
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-gemini_model = "gemini-2.5-pro"
-model = Gemini(id=gemini_model, api_key=gemini_api_key)
+model_name = "gemini-2.5-pro"
+model = Gemini(id=model_name, api_key=os.getenv("GEMINI_API_KEY"))
 
 class ConfusingVariants(BaseModel):
     """Structured output model for confusing context variants"""

@@ -128,7 +128,7 @@ def run_samples_generator(num_variants: int, max_sentences: Optional[int],
     
     # Import the samples generator module
     try:
-        from samples_generator import generate_variants_dataframe, save_variants_to_file, display_sample_variants
+        from samples_generator import generate_variants_dataframe, save_variants_to_file, display_sample_variants, model_name
         import pandas as pd
         from datetime import datetime
     except ImportError as e:
@@ -187,9 +187,21 @@ def run_samples_generator(num_variants: int, max_sentences: Optional[int],
             max_sentences=max_sentences if not use_random else None
         )
         
-        # Generate output filename with timestamp
+        # Generate output filename with model info, sentences count, variants count, and timestamp
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_filename = f"variants_output_{timestamp}.{output_format}"
+        
+        # Count actual sentences processed
+        from samples_generator import read_bio_tsv
+        if use_random and max_sentences:
+            sentences_count = max_sentences
+        elif max_sentences:
+            sentences_count = max_sentences
+        else:
+            # Count total sentences in the file
+            temp_df = read_bio_tsv(tsv_file_path)
+            sentences_count = len(temp_df)
+        
+        output_filename = f"generations/{model_name.replace("-", "_").replace(".", "_")}_{sentences_count}_sentences_{num_variants}_variants_output_{timestamp}.{output_format}"
         
         # Save results
         print(f"\n💾 Saving results to {output_filename}...")
